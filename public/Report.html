@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title>Generate Report</title>
+        
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+        
+        
+        <!-- MATERIAL DESIGN ICONIC FONT -->
+    <link rel="stylesheet" href="design_files/fonts/material-design-iconic-font/css/material-design-iconic-font.min.css">
+            
+            <!-- STYLE CSS -->
+    <link rel="stylesheet" href="design_files/css/style.css">
+    
+    <link rel="stylesheet" href="Rep.css">
+    
+    
+    <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-storage.js"></script>
+
+  <style>
+    body {
+        font-family: 'Baloo Thambi 2', cursive;
+        box-sizing: border-box;
+        margin-right: 100px;
+        margin-left:100px;
+        font-family: "Poppins-Regular";
+      }
+      
+      .header {
+          background-color: #f1f1f1;
+          padding: 20px;
+          text-align: center;
+          font-family: "Poppins-Regular";
+      }
+      
+      .topnav {
+          overflow: hidden;
+          background-color: #333;
+          font-family: "Poppins-Regular";
+      }
+      
+      .topnav a {
+          float: left;
+          display: block;
+          color: #f2f2f2;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+          font-family: "Poppins-Regular";
+      }
+      
+      .topnav a:hover {
+          background-color: #ddd;
+          font-family: "Poppins-Regular";
+          color: black;
+     
+         }
+         footer{color: white;}
+         
+         
+         #canvas{
+      display:none;
+      }
+      #v{
+      width: 470px;
+      height: 352px;
+      }
+      @page :left {
+      margin-left: 3cm;
+      }
+  
+      @page :right {
+      margin-left: 4cm;
+      }
+      * {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+      }
+      .page {
+          width: 15cm;
+          min-height: 10cm;
+          padding: 0cm;
+          margin: 1cm auto;
+          /*border: 1px #D3D3D3 solid;*/
+          /*border-radius: 5px;*/
+          background: white;
+          /*box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);*/
+      }
+      .subpage {
+          padding: 1cm;
+          border: 5px red solid;
+          height: 256mm;
+          outline: 2cm #FFEAEA solid;
+      }
+      
+      
+      .qrcode{
+          position:center;
+      }
+    </style>
+ <script>
+    function printDiv() { 
+        var divContents = document.getElementById("itemslist").innerHTML; 
+        var a = window.open('', '', 'height=500, width=500'); 
+        a.document.write('<html>'); 
+        a.document.write('<body>'); 
+        a.document.write(divContents); 
+        a.document.write('</body></html>'); 
+        a.document.close(); 
+        a.print(); 
+    } 
+</script>
+</head>
+<body background="bg101.jpg">
+  <div class="SOULBOOKS"> 
+    <table>
+       <tr>
+          <td align="center"><img src="logo.png" alt="This is an image" width="70" height="70"></td>
+          <td align="center">
+             <h1>QR Inventory System</h1>
+          </td>
+       </tr>
+    </table>
+    
+</div>
+<div class="topnav">
+<a href="#"id="log-out">logOut</a>
+<a href="http://localhost:5000/home.html">Home</a>
+<a href="http://localhost:5000/genQR.html">Generate QR code</a>
+<a href="http://localhost:5000/scanRep.html">Scanned Items Report </a>
+
+<a href="http://localhost:5000/Whouse.html">Warehouse</a>
+
+</div>
+
+</div>
+<br>
+<br>
+<table>
+  <tr><td><p  id="Category" style="display:inline">Please choose a category:</p><br>
+<select class="form-control"id="search" name="category" style="width: 200px;">
+  <option value="" disabled selected>choose Category</option>
+
+
+  <option value="Computers">Computers</option>
+  <option value="Keyboards">Keyboards</option>
+  <option value="Furniture">Furniture</option>
+  <option value="Printers">Printers</option>
+  <option value="Monitors">Monitors</option>
+  <option value="Mouses">Mouses</option>
+
+</select>
+</td><td>
+    <button class="waves-effect waves-light btn green no-print"  style="width: 60px; margin-top: initial; " type="submit" id="get" onclick="getdata()">get</button>
+  <br></td></tr>
+  </table>
+
+<div id="itemslist">
+    
+    <table class="table is-fullwidth" id="item-list">
+        <thead>
+          <tr>
+            <th>Item Id   </th>
+            <th>Item Name  </th>
+            <th>Item Location  </th>
+            <th>Warehouse  </th>
+            <th>Item Custody  </th>
+            <th>Item Exp Date  </th>
+
+          </tr>
+        </thead>
+        <tbody id="ItemsList"></tbody>
+      </table>
+
+    </div>
+
+    <button class="waves-effect waves-light btn green no-print"  style="width: 60px; margin-top: initial; " id="print" onclick="printDiv()">Print</button>
+
+
+
+
+
+
+
+
+<script src="js/index.js"></script> 
+<script src="js/Greport.js"></script> 
+
+
+<script>
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            // User is signed in.
+        } else {
+            // User is signed out.
+            window.alert("please log in")
+            window.location.href="http://localhost:5000/login.html";
+        }
+    });
+</script>
+ 
+
+    
+</body>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<center><div class="topnav">
+<footer class="footer">CopyRight &copy;QR Inventory System</footer>
+</div>
+</center>
+
+</html>
